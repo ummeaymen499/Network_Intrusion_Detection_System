@@ -1,0 +1,290 @@
+<!-- Updated Full results.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scan Results</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">🔍 NIDS</a>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  <h1 class="text-center mb-4">Scan Results</h1>
+
+  <!-- Debugging: Display raw data -->
+  <pre>{{ data | safe }}</pre>
+
+  <!-- Results Table -->
+  <table class="table table-bordered table-hover mt-4">
+    <thead class="table-dark">
+      <tr>
+        <th>IP Address</th>
+        <th>Attack Type</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if data %}
+        {% for row in data %}
+        <tr>
+          <td>{{ row['IP Address'] }}</td>
+          <td>{{ row['Attack Type'] }}</td>
+        </tr>
+        {% endfor %}
+      {% else %}
+        <tr>
+          <td colspan="2" class="text-center">No data available</td>
+        </tr>
+      {% endif %}
+    </tbody>
+  </table>
+
+  <!-- Graphs Section -->
+  <div class="mt-5">
+    <h2 class="text-center mb-4">Prediction Graphs</h2>
+    <div class="row">
+      <!-- Bar Chart -->
+      <div class="col-md-6 mb-4">
+        <canvas id="barChart" style="height:400px;"></canvas>
+      </div>
+      <!-- Pie (Doughnut) Chart -->
+      <div class="col-md-6 mb-4">
+        <canvas id="pieChart" style="height:400px;"></canvas>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Line Chart -->
+      <div class="col-md-12 mb-4">
+        <canvas id="lineChart" style="height:400px;"></canvas>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Polar Area Chart -->
+      <div class="col-md-6 mb-4">
+        <canvas id="polarAreaChart" style="height:400px;"></canvas>
+      </div>
+      <!-- Radar Chart -->
+      <div class="col-md-6 mb-4">
+        <canvas id="radarChart" style="height:400px;"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Back Button -->
+  <div class="text-center mt-4">
+    <a href="/" class="btn btn-primary">← Back</a>
+  </div>
+</div>
+
+<!-- Chart Script -->
+<script>
+  const attackData = {{ attack_data | safe }} || {};
+  const labels = Object.keys(attackData);
+  const values = Object.values(attackData);
+
+  // Gradient Color Generator
+  function generateGradient(ctx, colorStart, colorEnd) {
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, colorStart);
+    gradient.addColorStop(1, colorEnd);
+    return gradient;
+  }
+
+  // Common Chart Options
+  const commonOptions = {
+    responsive: true,
+    animation: {
+      duration: 2000,
+      easing: 'easeInOutQuart'
+    },
+    plugins: {
+      legend: {
+        labels: {
+          color: '#333',
+          font: { size: 14, weight: 'bold' }
+        }
+      },
+      title: {
+        display: true,
+        color: '#444',
+        font: { size: 22, weight: 'bold' }
+      },
+      tooltip: {
+        backgroundColor: '#222',
+        titleColor: '#fff',
+        bodyColor: '#ccc',
+        padding: 12,
+        cornerRadius: 8
+      }
+    }
+  };
+
+  // Bar Chart
+  const barCtx = document.getElementById('barChart').getContext('2d');
+  const barGradient = generateGradient(barCtx, '#00c6ff', '#0072ff');
+  new Chart(barCtx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Number of Attacks',
+        data: values,
+        backgroundColor: barGradient,
+        borderColor: '#0056b3',
+        borderWidth: 2,
+        hoverBackgroundColor: '#007bff'
+      }]
+    },
+    options: {
+      ...commonOptions,
+      plugins: {
+        ...commonOptions.plugins,
+        title: {
+          ...commonOptions.plugins.title,
+          text: 'Attack Types - Bar Chart'
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#333', font: { size: 12 } },
+          grid: { display: false }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#333', font: { size: 12 } },
+          grid: { color: 'rgba(0,0,0,0.1)' }
+        }
+      }
+    }
+  });
+
+  // Pie (Doughnut) Chart
+  const pieCtx = document.getElementById('pieChart').getContext('2d');
+  const backgroundColors = labels.map((_, i) =>
+    `hsl(${(i * 60) % 360}, 70%, 60%)`
+  );
+  new Chart(pieCtx, {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: values,
+        backgroundColor: backgroundColors,
+        hoverOffset: 15
+      }]
+    },
+    options: {
+      ...commonOptions,
+      plugins: {
+        ...commonOptions.plugins,
+        title: {
+          ...commonOptions.plugins.title,
+          text: 'Attack Types - Doughnut Chart'
+        }
+      },
+      cutout: '60%',
+    }
+  });
+
+  // Line Chart
+  const lineCtx = document.getElementById('lineChart').getContext('2d');
+  const lineGradient = generateGradient(lineCtx, '#ff7e5f', '#feb47b');
+  new Chart(lineCtx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Attack Trends',
+        data: values,
+        fill: true,
+        backgroundColor: lineGradient,
+        borderColor: '#ff6a00',
+        tension: 0.4,
+        pointBackgroundColor: '#ff6a00'
+      }]
+    },
+    options: {
+      ...commonOptions,
+      plugins: {
+        ...commonOptions.plugins,
+        title: {
+          ...commonOptions.plugins.title,
+          text: 'Attack Types - Line Chart'
+        }
+      }
+    }
+  });
+
+  // Polar Area Chart
+  const polarCtx = document.getElementById('polarAreaChart').getContext('2d');
+  new Chart(polarCtx, {
+    type: 'polarArea',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: values,
+        backgroundColor: backgroundColors
+      }]
+    },
+    options: {
+      ...commonOptions,
+      plugins: {
+        ...commonOptions.plugins,
+        title: {
+          ...commonOptions.plugins.title,
+          text: 'Attack Types - Polar Area Chart'
+        }
+      }
+    }
+  });
+
+  // Radar Chart
+  const radarCtx = document.getElementById('radarChart').getContext('2d');
+  new Chart(radarCtx, {
+    type: 'radar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Attack Comparison',
+        data: values,
+        backgroundColor: 'rgba(54, 162, 235, 0.4)',
+        borderColor: '#36a2eb',
+        pointBackgroundColor: '#36a2eb'
+      }]
+    },
+    options: {
+      ...commonOptions,
+      plugins: {
+        ...commonOptions.plugins,
+        title: {
+          ...commonOptions.plugins.title,
+          text: 'Attack Types - Radar Chart'
+        }
+      },
+      scales: {
+        r: {
+          angleLines: { color: 'rgba(0,0,0,0.1)' },
+          grid: { color: 'rgba(0,0,0,0.1)' },
+          pointLabels: { color: '#333', font: { size: 12 } },
+          ticks: { color: '#333' }
+        }
+      }
+    }
+  });
+</script>
+
+<!-- Bootstrap Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,95 @@
+/* style.css */
+
+body {
+    background-color: #f8f9fa;
+    font-family: 'Poppins', sans-serif;
+    color: #343a40;
+    padding-bottom: 40px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2 {
+    color: #212529;
+    font-weight: 600;
+}
+
+.navbar-brand {
+    font-size: 1.6rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.container {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.05);
+    margin-top: 40px;
+    transition: background-color 0.3s ease;
+}
+
+form {
+    margin-top: 1.5rem;
+}
+
+.btn-primary, .btn-success {
+    font-weight: 500;
+    padding: 10px 25px;
+    border-radius: 30px;
+    transition: all 0.3s ease-in-out;
+}
+
+.btn-primary:hover, .btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+input[type="file"] {
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.table {
+    margin-top: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+.table thead th {
+    background-color: #343a40;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.badge {
+    font-size: 0.9rem;
+    padding: 8px 12px;
+    border-radius: 20px;
+}
+
+canvas {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.08);
+}
+
+/* Dark Mode Styles */
+body.bg-dark {
+    background-color: #1e1e1e !important;
+    color: #f8f9fa !important;
+}
+
+body.bg-dark .container {
+    background-color: #2c2c2c !important;
+}
+
+body.bg-dark .table thead th {
+    background-color: #444 !important;
+}
+
+body.bg-dark canvas {
+    background-color: #333;
+}
